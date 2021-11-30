@@ -1,6 +1,5 @@
 package com.example.shop.presentation
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.shop.data.ShopListRepositoryImpl
@@ -16,26 +15,16 @@ class ShopListViewModel @Inject constructor(shopListRepositoryImpl: ShopListRepo
     private val getShopListUseCase = GetShopListUseCase(shopListRepositoryImpl)
     private val deleteShopItemUseCase = DeleteShopItemUseCase(shopListRepositoryImpl)
     private val editShopItemUseCase = EditShopItemUseCase(shopListRepositoryImpl)
-
     val shopList = getShopListUseCase.getShopList()
 
-
-//    fun getShopList() {
-//        shopList.value = getShopListUseCase.getShopList()
-//    }
-
-    fun deleteShopItem(shopItem: ShopItem){
+    fun deleteShopItem(shopItem: ShopItem) {
         deleteShopItemUseCase.deleteShopItem(shopItem)
-//        getShopList()
     }
 
-    fun changeShopItem(shopItem: ShopItem){
+    fun changeShopItem(shopItem: ShopItem) {
         val newItem = shopItem.copy(enabled = !shopItem.enabled)
-        editShopItemUseCase.editShopItem(shopItem)
-//        getShopList()
+        editShopItemUseCase.editShopItem(newItem)
     }
-
-
 
     @Suppress("UNCHECKED_CAST")
     class FactoryViewModel @Inject constructor(

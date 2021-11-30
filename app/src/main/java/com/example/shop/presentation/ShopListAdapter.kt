@@ -1,48 +1,64 @@
 package com.example.shop.presentation
 
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.example.shop.R
 import com.example.shop.domain.ShopItem
 
-class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder>(DiffCallBack) {
+class ShopListAdapter : ListAdapter<ShopItem, ShopItemViewHolder>(ShopListDiffCallback()) {
 
-    inner class ShopListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textViewName: TextView = itemView.findViewById<TextView>(R.id.textViewName)
-        val textViewCount: TextView = itemView.findViewById<TextView>(R.id.textViewCount)
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
+    var onCLickListener: ((ShopItem) -> Unit)? = null
+    var count = 0
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
+        Log.d("TEST", "onCreateViewHolder ${++count}")
+        val layout = when (viewType) {
+            VIEW_TYPE_DISABLED -> R.layout.item_disabled
+            VIEW_TYPE_ENABLED -> R.layout.item_enabled
+            else -> throw RuntimeException("Unknown ViewType :$viewType")
+        }
+        val item = LayoutInflater.from(parent.context).inflate(
+            layout,
+            parent,
+            false
+        )
+        return ShopItemViewHolder(item)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopListViewHolder {
-        val item = LayoutInflater.from(parent.context).inflate(R.layout.item_item, parent, false)
-        return ShopListViewHolder(item)
-    }
+    override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
 
-    override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
         val currentItem = currentList[position]
         holder.textViewName.text = currentItem.name
         holder.textViewCount.text = currentItem.count.toString()
+        holder.itemView.setOnClickListener {
+            onCLickListener?.invoke(currentItem)
+        }
 
+        holder.itemView.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(currentItem)
+            Log.d("TEST", "Long$position")
+            true
+        }
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        val item = currentList[position]
+        return if (item.enabled) {
+            VIEW_TYPE_ENABLED
+        } else {
+            VIEW_TYPE_DISABLED
+        }
     }
 
     override fun getItemCount(): Int = currentList.size
 
-    private object DiffCallBack : DiffUtil.ItemCallback<ShopItem>() {
-
-        override fun areItemsTheSame(oldItem: ShopItem, newItem: ShopItem): Boolean {
-            return oldItem.id ==newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: ShopItem, newItem: ShopItem): Boolean {
-            return oldItem ==newItem
-        }
-
+    companion object {
+        const val VIEW_TYPE_ENABLED = 1
+        const val VIEW_TYPE_DISABLED = 0
+        const val MAX_SIZE_POOL = 10
     }
 
 }

@@ -10,7 +10,7 @@ interface ShopListRepository {
 
     fun editShopItem(shopItem: ShopItem)
 
-    fun getShopItemFromId( id:Int) :  ShopItem
+    fun getShopItemFromId(id: Int): ShopItem
 
-    fun getShopList():LiveData<List<ShopItem>>
+    fun getShopList(): LiveData<List<ShopItem>>
 }
